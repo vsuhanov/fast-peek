@@ -10,9 +10,17 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.vsuhanov.ideapeek.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <applicationService serviceImplementation="com.github.vsuhanov.ideapeek.PeekDefinitionPopupManager"
+                            client="all"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.vsuhanov.ideapeek.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="com.github.vsuhanov.ideapeek.listeners.MyApplicationActivationListener"
+                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
+
+    <actions>
+        <action id="com.github.vsuhanov.ideapeek.peek" class="com.github.vsuhanov.ideapeek.PeekAction"
+                text="Vsuhanov IDEA Peek Definition"/>
+    </actions>
 </idea-plugin>
