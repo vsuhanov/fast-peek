@@ -1,9 +1,9 @@
-package com.github.vsuhanov.ideapeek.services
+package com.github.vsuhanov.fastpeek.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.vsuhanov.ideapeek.MyBundle
+import com.github.vsuhanov.fastpeek.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {

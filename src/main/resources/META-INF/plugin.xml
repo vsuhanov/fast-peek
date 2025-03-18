@@ -1,26 +1,31 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.vsuhanov.ideapeek</id>
-    <name>idea-peek</name>
+    <id>com.github.vsuhanov.fastpeek</id>
+    <name>fast-peek</name>
     <vendor>vsuhanov</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="">IdeaVIM</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.vsuhanov.ideapeek.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <applicationService serviceImplementation="com.github.vsuhanov.ideapeek.PeekDefinitionPopupManager"
+        <toolWindow factoryClass="com.github.vsuhanov.fastpeek.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <applicationService serviceImplementation="com.github.vsuhanov.fastpeek.PeekDefinitionPopupManager"
                             client="all"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.vsuhanov.ideapeek.listeners.MyApplicationActivationListener"
+        <listener class="com.github.vsuhanov.fastpeek.listeners.MyApplicationActivationListener"
                   topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 
     <actions>
-        <action id="com.github.vsuhanov.ideapeek.peek" class="com.github.vsuhanov.ideapeek.PeekAction"
+        <action id="com.github.vsuhanov.fastpeek.peek" class="com.github.vsuhanov.fastpeek.PeekAction"
                 text="Vsuhanov IDEA Peek Definition"/>
+    </actions>
+    <actions>
+        <action id="com.github.vsuhanov.fastpeek.peekHelper" class="com.github.vsuhanov.fastpeek.PeekHelperAction"
+                text="Vsuhanov IDEA Peek Definition HELPER"/>
     </actions>
 </idea-plugin>

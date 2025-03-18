@@ -1,37 +1,32 @@
-package com.github.vsuhanov.ideapeek
+package com.github.vsuhanov.fastpeek
 
 import com.intellij.codeInsight.hint.ImplementationViewSession
 import com.intellij.codeInsight.hint.ImplementationViewSessionFactory
 import com.intellij.codeInsight.hint.PsiImplementationViewSession
 import com.intellij.codeInsight.navigation.ImplementationSearcher
+import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiDocumentManager
 
 class PeekAction : AnAction() {
+    private val MY_ACTION_ID = "com.github.vsuhanov.fastpeek.PeekAction"
+
     override fun actionPerformed(anActionEvent: AnActionEvent) {
         val context = anActionEvent.dataContext
-
         val project = anActionEvent.project ?: return
+
+        val vimPluginEnabled = PluginManager.getInstance().findEnabledPlugin(PluginId.getId("IdeaVIM")) != null
 
         // TODO: don't know if it's necessary, copied from ShowRelatedElementsActionBase
         PsiDocumentManager.getInstance(project).commitAllDocuments();
 
         val editor = anActionEvent.getData(CommonDataKeys.EDITOR)
-                ?: return
-
-//        val psiFile = PsiUtilBase.getPsiFileInEditor(editor, project) ?: return
-
-        val logicalPosition = editor.caretModel.logicalPosition
-//        val offset = editor.logicalPositionToOffset(logicalPosition)
-//        val elementAtCaret = psiFile.findElementAt(offset) ?: return
-
-//        val definition: PsiElement = findDefinition(elementAtCaret) ?: return
-
-//        val virtualFile = definition.containingFile.virtualFile ?: return
-
+            ?: return
         try {
             val sessionFactories = getSessionFactories()
             for (factory in sessionFactories) {
@@ -41,7 +36,8 @@ class PeekAction : AnAction() {
                 showPeekDefinition(session)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            DumbService.getInstance(project)
+                .showDumbModeNotificationForAction("Index is not ready for peek defintion", MY_ACTION_ID);
         }
 
     }
@@ -54,7 +50,7 @@ class PeekAction : AnAction() {
             return;
         }
 
-        val project = session.project;
+        session.project;
         val virtualFile = session.file
         var index = 0
         // TODO: for some reason it's important to know if it's invoked from editor and or via shortcut
@@ -69,7 +65,7 @@ class PeekAction : AnAction() {
         }
 
         PeekDefinitionPopupManager.getInstance()
-                .showImplementationsPopup(session, impls, index, "Peek Definition")
+            .showImplementationsPopup(session, impls, index, "Peek Definition", true)
 
     }
 
@@ -96,7 +92,8 @@ class PeekAction : AnAction() {
         if (context is com.intellij.psi.PsiElement) {
             contextFile = context.getContainingFile()
         }
-        val contextVirtualFile: com.intellij.openapi.vfs.VirtualFile? = if (contextFile != null) contextFile.getVirtualFile() else null
+        val contextVirtualFile: com.intellij.openapi.vfs.VirtualFile? =
+            if (contextFile != null) contextFile.getVirtualFile() else null
         val sessionVirtualFile: com.intellij.openapi.vfs.VirtualFile? = session.file
         if (contextVirtualFile != null && (contextVirtualFile == sessionVirtualFile)) {
             com.intellij.psi.util.PsiUtilCore.ensureValid((contextFile)!!)

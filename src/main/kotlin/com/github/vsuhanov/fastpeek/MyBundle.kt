@@ -1,4 +1,4 @@
-package com.github.vsuhanov.ideapeek
+package com.github.vsuhanov.fastpeek
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

@@ -1,4 +1,4 @@
-package com.github.vsuhanov.ideapeek.listeners
+package com.github.vsuhanov.fastpeek.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger

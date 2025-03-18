@@ -1,4 +1,4 @@
-package com.github.vsuhanov.ideapeek
+package com.github.vsuhanov.fastpeek
 
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.components.service
@@ -6,7 +6,7 @@ import com.intellij.psi.xml.XmlFile
 import com.intellij.testFramework.TestDataPath
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.PsiErrorElementUtil
-import com.github.vsuhanov.ideapeek.services.MyProjectService
+import com.github.vsuhanov.fastpeek.services.MyProjectService
 
 @TestDataPath("\$CONTENT_ROOT/src/test/testData")
 class MyPluginTest : BasePlatformTestCase() {

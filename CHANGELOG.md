@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# idea-peek Changelog
+# fast-peek Changelog
 
 ## [Unreleased]
 ### Added
