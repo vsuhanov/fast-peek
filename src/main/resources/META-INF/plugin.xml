@@ -5,7 +5,6 @@
     <vendor>vsuhanov</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="true" config-file="">IdeaVIM</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
@@ -13,6 +12,7 @@
         <toolWindow factoryClass="com.github.vsuhanov.fastpeek.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <applicationService serviceImplementation="com.github.vsuhanov.fastpeek.PeekDefinitionPopupManager"
                             client="all"/>
+
     </extensions>
 
     <applicationListeners>

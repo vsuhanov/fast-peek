@@ -18,6 +18,7 @@ import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.CardLayout
+import java.awt.event.KeyAdapter
 import java.util.*
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -46,11 +47,13 @@ class PeekDefinitionViewComponent : JPanel {
 //    private lateinit var myToolbar: ActionToolbar
 //    private lateinit var mySingleEntryPanel: JPanel
 
+    private lateinit var escKeyHandler: KeyAdapter
     private lateinit var implementationViewElement: ImplementationViewElement
 
 
-    constructor(elements: Collection<out ImplementationViewElement>, index: Int) : super(BorderLayout()) {
+    constructor(elements: Collection<out ImplementationViewElement>, index: Int, escKeyHandler: KeyAdapter) : super(BorderLayout()) {
         val firstElement = (if (!elements.isEmpty()) elements.iterator().next() else null) ?: return
+        this.escKeyHandler = escKeyHandler
         project = firstElement.project
         implementationViewElement = firstElement
         editorFactory = EditorFactory.getInstance()
@@ -76,6 +79,7 @@ class PeekDefinitionViewComponent : JPanel {
             false,
             EditorKind.MAIN_EDITOR
         ) as EditorEx
+        myEditor.contentComponent.addKeyListener(escKeyHandler)
         navigateToSymbolWithinEditor(element)
     }
 

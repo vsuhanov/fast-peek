@@ -20,8 +20,6 @@ class PeekAction : AnAction() {
         val context = anActionEvent.dataContext
         val project = anActionEvent.project ?: return
 
-        val vimPluginEnabled = PluginManager.getInstance().findEnabledPlugin(PluginId.getId("IdeaVIM")) != null
-
         // TODO: don't know if it's necessary, copied from ShowRelatedElementsActionBase
         PsiDocumentManager.getInstance(project).commitAllDocuments();
 

@@ -25,6 +25,8 @@ import com.intellij.ui.popup.PopupPositionManager
 import com.intellij.ui.popup.PopupUpdateProcessor
 import com.intellij.usages.Usage
 import com.intellij.usages.UsageView
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.lang.ref.Reference
 import java.lang.ref.WeakReference
 
@@ -70,10 +72,29 @@ class PeekDefinitionPopupManager {
 //                }
             }
 
+//            component.myEditor.contentComponent.addKeyListener()
+
+
             return
         }
 //
-        val component = PeekDefinitionViewComponent(implementationElements, elementIndex)
+        val escKeyHandler = object : KeyAdapter() {
+            override fun keyPressed(e: KeyEvent?) {
+//                if (e?.keyCode == KeyEvent.VK_ESCAPE && session.project.service<FastPeekService>()
+//                        .isEditorInInsertMode(component.myEditor)
+
+                if (e?.keyCode == KeyEvent.VK_ESCAPE) {
+                    val p = SoftReference.dereference(currentPopup)
+                    if (p is AbstractPopup && p.isVisible()) {
+                        p.cancel()
+                        e.consume()
+                        return
+                    }
+                }
+                super.keyPressed(e)
+            }
+        }
+        val component = PeekDefinitionViewComponent(implementationElements, elementIndex, escKeyHandler)
 
         if (component.hasElementsToShow()) {
             val popup = createPopup(session, component)
@@ -207,7 +228,8 @@ class PeekDefinitionPopupManager {
         val popupBuilder = JBPopupFactory.getInstance()
             .createComponentPopupBuilder(component, component.getPreferredFocusableComponent())
             .setCancelOnWindowDeactivation(false)
-            .setCancelOnClickOutside(false)
+            .setCancelOnClickOutside(true)
+            .setCancelKeyEnabled(false)
             .setProject(session.project)
             .addListener(updateProcessor)
             .addUserData(updateProcessor)
@@ -224,6 +246,7 @@ class PeekDefinitionPopupManager {
                 SoftReference.dereference(currentTask)?.cancelTask()
                 true
             }
+
 
         val listener = WindowMoveListener()
         listener.installTo(component)
