@@ -44,7 +44,6 @@ class PeekAction : AnAction() {
 
 
     private fun showPeekDefinition(session: ImplementationViewSession) {
-        // TODO("Not yet implemented")
         val impls = session.implementationElements;
         if (impls.isEmpty()) {
             return;
