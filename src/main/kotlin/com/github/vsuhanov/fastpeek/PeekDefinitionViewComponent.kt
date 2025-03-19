@@ -1,11 +1,12 @@
 package com.github.vsuhanov.fastpeek
 
 import com.intellij.codeInsight.hint.ImplementationViewElement
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.EditorKind
-import com.intellij.openapi.editor.ScrollType
+import com.intellij.openapi.editor.*
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -19,6 +20,8 @@ import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.event.KeyAdapter
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.util.*
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -51,7 +54,9 @@ class PeekDefinitionViewComponent : JPanel {
     private lateinit var implementationViewElement: ImplementationViewElement
 
 
-    constructor(elements: Collection<out ImplementationViewElement>, index: Int, escKeyHandler: KeyAdapter) : super(BorderLayout()) {
+    constructor(elements: Collection<out ImplementationViewElement>, index: Int, escKeyHandler: KeyAdapter) : super(
+        BorderLayout()
+    ) {
         val firstElement = (if (!elements.isEmpty()) elements.iterator().next() else null) ?: return
         this.escKeyHandler = escKeyHandler
         project = firstElement.project
@@ -80,7 +85,44 @@ class PeekDefinitionViewComponent : JPanel {
             EditorKind.MAIN_EDITOR
         ) as EditorEx
         myEditor.contentComponent.addKeyListener(escKeyHandler)
+
+
+        myEditor.contentComponent.addMouseListener(object : MouseAdapter() {
+            override fun mouseClicked(e: MouseEvent?) {
+                if (e!!.clickCount == 2 && e.button == MouseEvent.BUTTON1) {
+                    triggerAction(PeekAction.MY_ACTION_ID, project, myEditor)
+                }
+                if (e.clickCount == 1 && e.button == MouseEvent.BUTTON2) {
+                    triggerAction("GotoDeclaration", project, myEditor)
+                }
+                // handle double click
+//                component.myEditor.contentComponent.dispatchEvent(e)
+            }
+        })
         navigateToSymbolWithinEditor(element)
+    }
+
+    fun triggerAction(actionId: String, project: Project, editor: Editor) {
+        val action = ActionManager.getInstance().getAction(actionId)
+
+        if (action != null) {
+            val dataContext =
+                IdeFocusManager.getInstance(project).getFocusedDescendantFor(editor.contentComponent)?.let {
+                    DataManager.getInstance().getDataContext(it)
+                } ?: DataContext.EMPTY_CONTEXT
+
+            val event = AnActionEvent(
+                null,
+                dataContext,
+                "fast-peek-popup",
+                action.templatePresentation.clone(),
+                ActionManager.getInstance(),
+                0
+            )
+
+            action.actionPerformed(event)
+        }
+
     }
 
     private fun getDocument(virtualFile: VirtualFile?): Document? {

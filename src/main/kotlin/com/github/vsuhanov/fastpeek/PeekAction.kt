@@ -14,7 +14,9 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiDocumentManager
 
 class PeekAction : AnAction() {
-    private val MY_ACTION_ID = "com.github.vsuhanov.fastpeek.PeekAction"
+    companion object {
+        val MY_ACTION_ID = "com.github.vsuhanov.fastpeek.peek"
+    }
 
     override fun actionPerformed(anActionEvent: AnActionEvent) {
         val context = anActionEvent.dataContext

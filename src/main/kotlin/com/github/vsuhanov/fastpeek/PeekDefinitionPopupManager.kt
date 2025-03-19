@@ -27,6 +27,8 @@ import com.intellij.usages.Usage
 import com.intellij.usages.UsageView
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.lang.ref.Reference
 import java.lang.ref.WeakReference
 
@@ -37,13 +39,13 @@ class PeekDefinitionPopupManager {
     private val usageView = Ref<UsageView?>()
 
     fun showImplementationsPopup(
-        session: ImplementationViewSession,
-        implementationElements: List<ImplementationViewElement>,
-        elementIndex: Int,
-        title: String,
+            session: ImplementationViewSession,
+            implementationElements: List<ImplementationViewElement>,
+            elementIndex: Int,
+            title: String,
 //                                 couldPinPopup: Boolean,
 //                                 invokedFromEditor: Boolean,
-        invokedByShortcut: Boolean,
+            invokedByShortcut: Boolean,
 //                                 updatePopup: (lookupItemObject: Any?) -> Unit
     ) {
 //        val usageView = Ref<UsageView?>()
@@ -115,9 +117,9 @@ class PeekDefinitionPopupManager {
 //            component.setHint(popup, title)
 
             PopupPositionManager.positionPopupInBestPosition(
-                popup,
-                session.editor,
-                DataManager.getInstance().getDataContext()
+                    popup,
+                    session.editor,
+                    DataManager.getInstance().getDataContext()
             )
             currentPopup = WeakReference(popup)
         }
@@ -137,9 +139,9 @@ class PeekDefinitionPopupManager {
     }
 
     private fun updateInBackground(
-        session: ImplementationViewSession,
-        component: PeekDefinitionViewComponent,
-        popup: JBPopup
+            session: ImplementationViewSession,
+            component: PeekDefinitionViewComponent,
+            popup: JBPopup
     ) {
         SoftReference.dereference(currentTask)?.cancelTask()
 
@@ -147,7 +149,7 @@ class PeekDefinitionPopupManager {
 
         val task = PeekDefinitionUpdaterTask(session, component).apply {
             val updater =
-                PeekDefinitionViewComponentUpdater(component, if (session.elementRequiresIncludeSelf()) 1 else 0)
+                    PeekDefinitionViewComponentUpdater(component, if (session.elementRequiresIncludeSelf()) 1 else 0)
             init(popup, updater, usageView)
         }
         currentTask = WeakReference(task)
@@ -155,10 +157,10 @@ class PeekDefinitionPopupManager {
     }
 
     private class PeekDefinitionUpdaterTask(
-        private val mySession: ImplementationViewSession,
-        private val myComponent: PeekDefinitionViewComponent
+            private val mySession: ImplementationViewSession,
+            private val myComponent: PeekDefinitionViewComponent
     ) : BackgroundUpdaterTaskBase<ImplementationViewElement?>(
-        mySession.project, ImplementationSearcher.getSearchingForImplementations(), null
+            mySession.project, ImplementationSearcher.getSearchingForImplementations(), null
     ) {
         private var myElements: List<ImplementationViewElement>? = null
         override fun getCaption(size: Int): String? {
@@ -191,10 +193,10 @@ class PeekDefinitionPopupManager {
     }
 
     private class PeekDefinitionViewComponentUpdater(
-        private val myComponent: PeekDefinitionViewComponent,
-        private val myIncludeSelfIdx: Int
+            private val myComponent: PeekDefinitionViewComponent,
+            private val myIncludeSelfIdx: Int
     ) :
-        GenericListComponentUpdater<ImplementationViewElement?> {
+            GenericListComponentUpdater<ImplementationViewElement?> {
         override fun paintBusy(paintBusy: Boolean) {
             //todo notify busy
         }
@@ -226,26 +228,26 @@ class PeekDefinitionPopupManager {
         }
 
         val popupBuilder = JBPopupFactory.getInstance()
-            .createComponentPopupBuilder(component, component.getPreferredFocusableComponent())
-            .setCancelOnWindowDeactivation(false)
-            .setCancelOnClickOutside(true)
-            .setCancelKeyEnabled(false)
-            .setProject(session.project)
-            .addListener(updateProcessor)
-            .addUserData(updateProcessor)
-            .setDimensionServiceKey(session.project, "peek.definition.popup", false)
-            .setModalContext(false)
-            .setResizable(true)
-            .setMovable(true)
+                .createComponentPopupBuilder(component, component.getPreferredFocusableComponent())
+                .setCancelOnWindowDeactivation(false)
+                .setCancelOnClickOutside(true)
+                .setCancelKeyEnabled(false)
+                .setProject(session.project)
+                .addListener(updateProcessor)
+                .addUserData(updateProcessor)
+                .setDimensionServiceKey(session.project, "peek.definition.popup", false)
+                .setModalContext(false)
+                .setResizable(true)
+                .setMovable(true)
 
 //                .setRequestFocus(invokedFromEditor && LookupManager.getActiveLookup(session.editor) == null)
 
-            .setRequestFocus(true)
-            .setFocusable(true)
-            .setCancelCallback {
-                SoftReference.dereference(currentTask)?.cancelTask()
-                true
-            }
+                .setRequestFocus(true)
+                .setFocusable(true)
+                .setCancelCallback {
+                    SoftReference.dereference(currentTask)?.cancelTask()
+                    true
+                }
 
 
         val listener = WindowMoveListener()
@@ -253,8 +255,10 @@ class PeekDefinitionPopupManager {
 
         val popup = popupBuilder.createPopup()
 
+
         Disposer.register(popup, session)
         Disposer.register(popup, Disposable { listener.uninstallFrom(component) })
+
 
         return popup
     }
