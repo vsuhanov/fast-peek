@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.vsuhanov.fastpeek</id>
-    <name>fast-peek</name>
+    <name>Fast Peek</name>
     <vendor>vsuhanov</vendor>
 
     <depends>com.intellij.modules.platform</depends>

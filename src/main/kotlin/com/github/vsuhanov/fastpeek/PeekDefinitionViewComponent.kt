@@ -5,16 +5,15 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.*
-import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.refactoring.suggested.startOffset
 import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
@@ -22,7 +21,6 @@ import java.awt.CardLayout
 import java.awt.event.KeyAdapter
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
-import java.util.*
 import javax.swing.JComponent
 import javax.swing.JPanel
 
@@ -32,23 +30,12 @@ class PeekDefinitionViewComponent : JPanel {
     private val TEXT_PAGE_KEY = "Text";
     private lateinit var editorFactory: EditorFactory
     public lateinit var project: Project
-//    private lateinit var mySwitcher: DefinitionSwitcher<ImplementationViewElement>
 
     public lateinit var myEditor: EditorEx
 
-    //    @Volatile
-//    private var myEditorReleased: Boolean = false
     private lateinit var myViewingPanel: JBPanel<JBPanel<*>>
 
-    //    private lateinit var myBinarySwitch: CardLayout
-//    private lateinit var myBinaryPanel: JPanel
-//    private lateinit var myFileChooser: ComboBox<FileDescriptor>
-//    private lateinit var myNonTextEditor: FileEditor
-//    private lateinit var myCurrentNonTextEditorProvider: com.intellij.openapi.fileEditor.FileEditorProvider
-//    private lateinit var myHint: JBPopup
     private lateinit var myTitle: @NlsContexts.TabTitle String
-//    private lateinit var myToolbar: ActionToolbar
-//    private lateinit var mySingleEntryPanel: JPanel
 
     private lateinit var escKeyHandler: KeyAdapter
     private lateinit var implementationViewElement: ImplementationViewElement
@@ -119,6 +106,7 @@ class PeekDefinitionViewComponent : JPanel {
                 ActionManager.getInstance(),
                 0
             )
+            ActionUtil.performActionDumbAwareWithCallbacks(action, event)
 
             action.actionPerformed(event)
         }
@@ -165,8 +153,7 @@ class PeekDefinitionViewComponent : JPanel {
         func(candidates, files)
     }
 
-    public fun cleanup() {
-        // TODO: implement cleanup
+    fun cleanup() {
         if (!myEditorReleased) {
             myEditorReleased = true // remove notify can be called several times for popup windows
             EditorFactory.getInstance().releaseEditor(myEditor)
@@ -186,7 +173,7 @@ class PeekDefinitionViewComponent : JPanel {
 
             val document = getDocument(virtualFile)
             if (document != null) {
-                replaceEditor(implementationViewElement, virtualFile, project, document)
+                replaceEditor(implementationViewElement)
             }
 
             revalidate();
@@ -201,8 +188,8 @@ class PeekDefinitionViewComponent : JPanel {
         val psiElement = element.elementForShowUsages
         if (psiElement != null) {
             val caretModel = myEditor.caretModel
-            caretModel.currentCaret.moveToOffset(psiElement.startOffset)
-            val logicalPosition = myEditor.offsetToLogicalPosition(psiElement.startOffset)
+            caretModel.currentCaret.moveToOffset(psiElement.textRange.startOffset)
+            val logicalPosition = myEditor.offsetToLogicalPosition(psiElement.textRange.startOffset)
             ApplicationManager.getApplication().invokeLater {
                 IdeFocusManager.getInstance(project).requestFocus(myEditor.contentComponent, true);
 //                IdeFocusManager.getGlobalInstance().requestFocus(myEditor.component, false)
@@ -212,16 +199,8 @@ class PeekDefinitionViewComponent : JPanel {
         }
     }
 
-    private fun tuneEditor() {
-        val scheme = EditorColorsManager.getInstance().globalScheme
-        myEditor.colorsScheme = scheme
-    }
-
     private fun replaceEditor(
         element: ImplementationViewElement,
-        file: VirtualFile?,
-        project: Project,
-        document: Document
     ) {
 
         myViewingPanel.remove(myEditor.component)
@@ -234,9 +213,6 @@ class PeekDefinitionViewComponent : JPanel {
         return true
     }
 
-    fun scrollIntoView() {
-        navigateToSymbolWithinEditor(implementationViewElement)
-    }
 
     fun getPreferredFocusableComponent(): JComponent {
         return myEditor.contentComponent

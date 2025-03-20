@@ -1,4 +1,4 @@
-# fast-peek
+# Fast Peek
 
 ![Build](https://github.com/vsuhanov/fast-peek/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)

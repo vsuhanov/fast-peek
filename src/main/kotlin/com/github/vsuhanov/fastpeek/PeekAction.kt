@@ -36,10 +36,7 @@ class PeekAction : AnAction() {
                 showPeekDefinition(session)
             }
         } catch (e: Exception) {
-            DumbService.getInstance(project)
-                .showDumbModeNotificationForAction("Index is not ready for peek defintion", MY_ACTION_ID);
         }
-
     }
 
 
