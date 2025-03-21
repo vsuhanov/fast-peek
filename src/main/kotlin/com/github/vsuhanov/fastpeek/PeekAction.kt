@@ -39,7 +39,6 @@ class PeekAction : AnAction() {
         }
     }
 
-
     private fun showPeekDefinition(session: ImplementationViewSession) {
         val impls = session.implementationElements;
         if (impls.isEmpty()) {
@@ -61,23 +60,12 @@ class PeekAction : AnAction() {
         }
 
         PeekDefinitionPopupManager.getInstance()
-            .showImplementationsPopup(session, impls, index, "Peek Definition", true)
+            .showImplementationsPopup(session, impls, index)
 
     }
-
-//    private fun findDefinition(element: PsiElement): PsiElement? {
-//        return PsiTreeUtil.getParentOfType(element, PsiElement::class.java)
-//        return element.reference?.resolve() ?: return null
-//        // Implement logic to find the definition of the symbol
-//        // This is a placeholder and needs to be replaced with actual implementation
-//    }
 
     private fun getSessionFactories(): List<ImplementationViewSessionFactory> {
         return ImplementationViewSessionFactory.EP_NAME.getExtensionList(null);
-    }
-
-    private fun createImplementationSearcher(): ImplementationSearcher {
-        return PsiImplementationViewSession.createImplementationsSearcher(true);
     }
 
     private fun ensureValid(session: ImplementationViewSession, context: kotlin.Any?) {

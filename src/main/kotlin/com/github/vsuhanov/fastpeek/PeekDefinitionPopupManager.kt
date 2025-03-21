@@ -24,11 +24,9 @@ class PeekDefinitionPopupManager {
     private var currentPopup: Reference<JBPopup>? = null
 
     fun showImplementationsPopup(
-            session: ImplementationViewSession,
-            implementationElements: List<ImplementationViewElement>,
-            elementIndex: Int,
-            title: String,
-            invokedByShortcut: Boolean,
+        session: ImplementationViewSession,
+        implementationElements: List<ImplementationViewElement>,
+        elementIndex: Int,
     ) {
 
         var popup = SoftReference.dereference(currentPopup)
@@ -65,9 +63,9 @@ class PeekDefinitionPopupManager {
             }
 
             PopupPositionManager.positionPopupInBestPosition(
-                    popup,
-                    session.editor,
-                    DataManager.getInstance().getDataContext(session.editor?.contentComponent)
+                popup,
+                session.editor,
+                DataManager.getInstance().getDataContext(session.editor?.contentComponent)
             )
             currentPopup = WeakReference(popup)
         }
@@ -89,22 +87,22 @@ class PeekDefinitionPopupManager {
         }
 
         val popupBuilder = JBPopupFactory.getInstance()
-                .createComponentPopupBuilder(component, component.getPreferredFocusableComponent())
-                .setCancelOnWindowDeactivation(false)
-                .setCancelOnClickOutside(true)
-                .setCancelKeyEnabled(false)
-                .setProject(session.project)
-                .addListener(updateProcessor)
-                .addUserData(updateProcessor)
-                .setDimensionServiceKey(session.project, "peek.definition.popup", false)
-                .setModalContext(false)
-                .setResizable(true)
-                .setMovable(true)
-                .setRequestFocus(true)
-                .setFocusable(true)
-                .setCancelCallback {
-                    true
-                }
+            .createComponentPopupBuilder(component, component.getPreferredFocusableComponent())
+            .setCancelOnWindowDeactivation(false)
+            .setCancelOnClickOutside(true)
+            .setCancelKeyEnabled(false)
+            .setProject(session.project)
+            .addListener(updateProcessor)
+            .addUserData(updateProcessor)
+            .setDimensionServiceKey(session.project, "peek.definition.popup", false)
+            .setModalContext(false)
+            .setResizable(true)
+            .setMovable(true)
+            .setRequestFocus(true)
+            .setFocusable(true)
+            .setCancelCallback {
+                true
+            }
 
 
         val listener = WindowMoveListener()
@@ -112,10 +110,8 @@ class PeekDefinitionPopupManager {
 
         val popup = popupBuilder.createPopup()
 
-
         Disposer.register(popup, session)
         Disposer.register(popup) { listener.uninstallFrom(component) }
-
 
         return popup
     }
