@@ -11,37 +11,41 @@ import com.intellij.openapi.editor.*
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.psi.PsiManager
+import com.intellij.ui.DeferredIcon
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
+import com.intellij.ui.components.JBTextField
+import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
-import java.awt.CardLayout
 import java.awt.event.KeyAdapter
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.UIManager
 
 class PeekDefinitionViewComponent : JPanel {
     private var myEditorReleased: Boolean = false
 
-    private val TEXT_PAGE_KEY = "Text";
     private lateinit var editorFactory: EditorFactory
-    public lateinit var project: Project
+    internal lateinit var project: Project
 
-    public lateinit var myEditor: EditorEx
-
+    internal lateinit var myEditor: EditorEx
     private lateinit var myViewingPanel: JBPanel<JBPanel<*>>
 
-    private lateinit var myTitle: @NlsContexts.TabTitle String
+    private lateinit var label: JBTextField
+    private lateinit var iconLabel: JBLabel
 
     private lateinit var escKeyHandler: KeyAdapter
     private lateinit var implementationViewElement: ImplementationViewElement
 
 
-    constructor(elements: Collection<out ImplementationViewElement>, index: Int, escKeyHandler: KeyAdapter) : super(
+    constructor(elements: Collection<ImplementationViewElement>, index: Int, escKeyHandler: KeyAdapter) : super(
         BorderLayout()
     ) {
         val firstElement = (if (!elements.isEmpty()) elements.iterator().next() else null) ?: return
@@ -52,18 +56,57 @@ class PeekDefinitionViewComponent : JPanel {
         preferredSize = JBUI.size(600, 400)
         setupEditor(firstElement)
 
-        val layout = CardLayout()
+        val layout = BorderLayout()
         myViewingPanel = JBPanel(layout)
+
+        val containingFile = firstElement.containingFile
+        label = createSelectableTextLabel(createLabelText(containingFile))
+
+        var icon: Icon? = getFileIcon(containingFile)
+        if (icon is DeferredIcon) {
+            icon = icon.evaluate()
+        }
+        val headerPanel: JBPanel<JBPanel<*>> = JBPanel(BorderLayout())
+
+
+        iconLabel = JBLabel(icon)
+        iconLabel.horizontalAlignment = JBLabel.CENTER
+        headerPanel.add(iconLabel, BorderLayout.WEST)
+        headerPanel.add(label, BorderLayout.CENTER)
+        headerPanel.border = JBEmptyBorder(8)
+
+        myViewingPanel.add(myEditor.component, BorderLayout.CENTER)
+        myViewingPanel.add(headerPanel, BorderLayout.NORTH)
+
         add(myViewingPanel, BorderLayout.CENTER)
+        ApplicationManager.getApplication().invokeLater {
+            iconLabel.revalidate()
+            iconLabel.repaint()
+            revalidate();
+            repaint();
+        }
+    }
 
-        myViewingPanel.add(myEditor.component, "Text")
+    private fun getFileIcon(file: VirtualFile?): Icon? {
+        if (file != null) {
+            val psiFile = PsiManager.getInstance(project).findFile(file)
+            return psiFile?.getIcon(com.intellij.openapi.util.Iconable.ICON_FLAG_VISIBILITY)
+                ?: UIManager.getIcon("FileView.fileIcon");
+        }
 
-        revalidate();
-        repaint();
+        return UIManager.getIcon("FileView.fileIcon");
+    }
+
+    fun createLabelText(file: VirtualFile?): String {
+        if (file == null) {
+            return ""
+        }
+        return file.presentableName;
     }
 
     private fun setupEditor(element: ImplementationViewElement) {
         val document = getDocument(element.containingFile) ?: return
+
         myEditor = editorFactory.createEditor(
             document,
             project,
@@ -71,8 +114,8 @@ class PeekDefinitionViewComponent : JPanel {
             false,
             EditorKind.MAIN_EDITOR
         ) as EditorEx
-        myEditor.contentComponent.addKeyListener(escKeyHandler)
 
+        myEditor.contentComponent.addKeyListener(escKeyHandler)
 
         myEditor.contentComponent.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent?) {
@@ -82,8 +125,6 @@ class PeekDefinitionViewComponent : JPanel {
                 if (e.clickCount == 1 && e.button == MouseEvent.BUTTON2) {
                     triggerAction("GotoDeclaration", project, myEditor)
                 }
-                // handle double click
-//                component.myEditor.contentComponent.dispatchEvent(e)
             }
         })
         navigateToSymbolWithinEditor(element)
@@ -107,8 +148,6 @@ class PeekDefinitionViewComponent : JPanel {
                 0
             )
             ActionUtil.performActionDumbAwareWithCallbacks(action, event)
-
-            action.actionPerformed(event)
         }
 
     }
@@ -153,13 +192,6 @@ class PeekDefinitionViewComponent : JPanel {
         func(candidates, files)
     }
 
-    fun cleanup() {
-        if (!myEditorReleased) {
-            myEditorReleased = true // remove notify can be called several times for popup windows
-            EditorFactory.getInstance().releaseEditor(myEditor)
-        }
-    }
-
     fun update(implementationElements: List<ImplementationViewElement>, elementIndex: Int) {
         updateWithFunc(
             implementationElements
@@ -168,8 +200,8 @@ class PeekDefinitionViewComponent : JPanel {
             if (elements.isEmpty()) return@updateWithFunc false;
 
             implementationViewElement = elements[0]
-            project = implementationViewElement.project;
-            val virtualFile = implementationViewElement.containingFile;
+            project = implementationViewElement.project
+            val virtualFile = implementationViewElement.containingFile
 
             val document = getDocument(virtualFile)
             if (document != null) {
@@ -206,16 +238,34 @@ class PeekDefinitionViewComponent : JPanel {
         myViewingPanel.remove(myEditor.component)
         editorFactory.releaseEditor(myEditor)
         setupEditor(element)
-        myViewingPanel.add(myEditor.component, TEXT_PAGE_KEY)
+        myViewingPanel.add(myEditor.component, BorderLayout.CENTER)
+        iconLabel.icon = getFileIcon(element.containingFile)
+        label.text = createLabelText(element.containingFile)
     }
+
+    private fun createSelectableTextLabel(text: String): JBTextField {
+        val labelLikeField = JBTextField(text)
+        labelLikeField.isEditable = false
+        labelLikeField.border = null
+        labelLikeField.setOpaque(false)
+        labelLikeField.setForeground(UIManager.getColor("Label.foreground"));
+        return labelLikeField
+    }
+
+    fun getPreferredFocusableComponent(): JComponent {
+        return myEditor.contentComponent
+    }
+
 
     fun hasElementsToShow(): Boolean {
         return true
     }
 
-
-    fun getPreferredFocusableComponent(): JComponent {
-        return myEditor.contentComponent
+    fun cleanup() {
+        if (!myEditorReleased) {
+            myEditorReleased = true // remove notify can be called several times for popup windows
+            EditorFactory.getInstance().releaseEditor(myEditor)
+        }
     }
 }
 
