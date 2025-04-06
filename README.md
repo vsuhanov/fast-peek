@@ -30,7 +30,7 @@ Quickly peek a definition of a symbol under the cursor in an editable popup.
 
 It is similar to the `Quick Definition` feature, but is different in following ways:
 
-1. Instead of a short snippent of the definition, it shows the containing file
+1. Instead of a short snippet of the definition, it shows the containing file
 2. The file is fully editable in the popup so you can quickly adjust
 3. Further invocation of the action will continue to go deeper in the same popup
 
@@ -57,6 +57,12 @@ steal the focus and ctrl/cmd+c will copy the first line from the editor that ope
 1. currently double-click in the popup that opens is hardcoded to trigger the same action, so you won't be able to do selection in this way in the popup.
 2. `GotoDefinition` action (ctrl/cmd+b, ctrl/cmd+click, scroll wheel button click) currently only works via keyboard shortcuts and scroll wheel button click. ctrl/cmd+click does not work.
    * it's also going to open the defition in the main editor, not in the popup. Further navigation with the popup is available via double-click
+
+# What's new
+## 1.0.5
+1. show a title with the file name on top of the popup
+2. in some cases navigation in the editor (if it is in the same file) will actually happen in the popup. 
+  * this is work in progress, unfortunately the platform does not support any simple implementation to navigate within the same editor
 <!-- Plugin description end -->
 
 ## Installation
