@@ -4,12 +4,16 @@ import com.intellij.codeInsight.hint.ImplementationViewElement
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR
+import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.*
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor.NAVIGATE_IN_EDITOR
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.IdeFocusManager
@@ -29,7 +33,7 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.UIManager
 
-class PeekDefinitionViewComponent : JPanel {
+class PeekDefinitionViewComponent : JPanel, DataProvider {
     private var myEditorReleased: Boolean = false
 
     private lateinit var editorFactory: EditorFactory
@@ -43,11 +47,12 @@ class PeekDefinitionViewComponent : JPanel {
 
     private lateinit var escKeyHandler: KeyAdapter
     private lateinit var implementationViewElement: ImplementationViewElement
-
+//    private lateinit var connection: MessageBusConnection
 
     constructor(elements: Collection<ImplementationViewElement>, index: Int, escKeyHandler: KeyAdapter) : super(
         BorderLayout()
     ) {
+
         val firstElement = (if (!elements.isEmpty()) elements.iterator().next() else null) ?: return
         this.escKeyHandler = escKeyHandler
         project = firstElement.project
@@ -85,7 +90,19 @@ class PeekDefinitionViewComponent : JPanel {
             revalidate();
             repaint();
         }
+
+        DataManager.registerDataProvider(this, this)
+
+//        val actionListner = object : AnActionListener {
+//            override fun beforeActionPerformed(action: AnAction, event: AnActionEvent) {
+//                super.beforeActionPerformed(action, event)
+//            }
+//        }
+//
+//        val connection: MessageBusConnection = ApplicationManager.getApplication().messageBus.connect()
+//        connection.subscribe(AnActionListener.TOPIC, actionListner)
     }
+
 
     private fun getFileIcon(file: VirtualFile?): Icon? {
         if (file != null) {
@@ -266,6 +283,18 @@ class PeekDefinitionViewComponent : JPanel {
             myEditorReleased = true // remove notify can be called several times for popup windows
             EditorFactory.getInstance().releaseEditor(myEditor)
         }
+
+        DataManager.removeDataProvider(this)
+//        connection.disconnect()
+    }
+
+    override fun getData(dataId: String): Any? {
+        when {
+            NAVIGATE_IN_EDITOR.`is`(dataId) -> myEditor
+            EDITOR.`is`(dataId) -> myEditor
+            PROJECT.`is`(dataId) -> project
+        }
+        return null
     }
 }
 

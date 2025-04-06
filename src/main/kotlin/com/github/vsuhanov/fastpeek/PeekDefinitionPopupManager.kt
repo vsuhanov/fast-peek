@@ -88,7 +88,7 @@ class PeekDefinitionPopupManager {
 
         val popupBuilder = JBPopupFactory.getInstance()
             .createComponentPopupBuilder(component, component.getPreferredFocusableComponent())
-            .setCancelOnWindowDeactivation(false)
+            .setCancelOnWindowDeactivation(true)
             .setCancelOnClickOutside(true)
             .setCancelKeyEnabled(false)
             .setProject(session.project)
