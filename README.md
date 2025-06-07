@@ -23,7 +23,7 @@
   the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
 - [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified
   about releases containing new features and fixes.
-
+[Как установи](../../Library/Mobile%20Documents/com%7Eapple%7ECloudDocs/Documents/%C3%B0%C2%9F%C2%8C%C2%9F%20SIA%20Brinum/%C3%B0%C2%9F%C2%93%C2%95sketchup/components/easykitchen/EasyKitchen/%D0%9A%D0%B0%D0%BA%20%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%B8)
 # Description
 <!-- Plugin description -->
 Quickly peek a definition of a symbol under the cursor in an editable popup.
@@ -59,6 +59,8 @@ steal the focus and ctrl/cmd+c will copy the first line from the editor that ope
    * it's also going to open the defition in the main editor, not in the popup. Further navigation with the popup is available via double-click
 
 # What's new
+## 1.0.6
+1. remove "until-build" to allow it to run on any new version
 ## 1.0.5
 1. show a title with the file name on top of the popup
 2. in some cases navigation in the editor (if it is in the same file) will actually happen in the popup. 
